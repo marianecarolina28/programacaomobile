@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+"import { useEffect } from \"react\";
+import \"@/App.css\";
+
+function App() {
+  useEffect(() => {
+    // Função pura em JS que calcula a média usando document.getElementById, parseFloat, if/else e innerText.
+    function calcularMedia() {
+      const input1 = document.getElementById(\"nota1\");
+      const input2 = document.getElementById(\"nota2\");
+      const input3 = document.getElementById(\"nota3\");
+      const resultado = document.getElementById(\"resultado\");
+
+      const v1 = input1.value.trim();
+      const v2 = input2.value.trim();
+      const v3 = input3.value.trim();
+
+      // Limpa classe de cor anterior
+      resultado.className = \"resultado\";
+
+      // 1. Campos vazios
+      if (v1 === \"\" || v2 === \"\" || v3 === \"\") {
+        resultado.innerText = \"Por favor, preencha todas as notas.\";
+        resultado.classList.add(\"erro\");
+        return;
+      }
+
+      const nota1 = parseFloat(v1);
+      const nota2 = parseFloat(v2);
+      const nota3 = parseFloat(v3);
+
+      // 2. Valores numéricos válidos
+      if (isNaN(nota1) || isNaN(nota2) || isNaN(nota3)) {
+        resultado.innerText = \"Digite apenas números válidos.\";
+        resultado.classList.add(\"erro\");
+        return;
+      }
+
+      // 3. Intervalo permitido (0 a 10)
+      if (
+        nota1 < 0 ||
+        nota1 > 10 ||
+        nota2 < 0 ||
+        nota2 > 10 ||
+        nota3 < 0 ||
+        nota3 > 10
+      ) {
+        resultado.innerText = \"As notas devem estar entre 0 e 10.\";
+        resultado.classList.add(\"erro\");
+        return;
+      }
+
+      // 4. Cálculo da média (inclui terceira nota como desafio extra)
+      const media = (nota1 + nota2 + nota3) / 3;
+
+      let situacao = \"\";
+      let cor = \"\";
+      if (media >= 7) {
+        situacao = \"Aprovado\";
+        cor = \"aprovado\";
+      } else if (media >= 5) {
+        situacao = \"Recuperação\";
+        cor = \"recuperacao\";
+      } else {
+        situacao = \"Reprovado\";
+        cor = \"reprovado\";
+      }
+
+      // Exibe resultado com 1 casa decimal + situação
+      resultado.innerHTML =
+        \"Média: \" +
+        media.toFixed(1) +
+        \"<br>Situação: \" +
+        situacao;
+      resultado.classList.add(cor);
+
+      // Desafio extra: limpa os campos após o cálculo
+      input1.value = \"\";
+      input2.value = \"\";
+      input3.value = \"\";
+      input1.focus();
+    }
+
+    // Expõe a função no escopo global para o atributo onclick do botão
+    window.calcularMedia = calcularMedia;
+
+    // Permite pressionar Enter em qualquer input para calcular
+    const form = document.getElementById(\"form-notas\");
+    const onKey = (e) => {
+      if (e.key === \"Enter\") {
+        e.preventDefault();
+        calcularMedia();
+      }
+    };
+    form && form.addEventListener(\"keydown\", onKey);
+
+    return () => {
+      form && form.removeEventListener(\"keydown\", onKey);
+      delete window.calcularMedia;
+    };
+  }, []);
+
+  return (
+    <div className=\"pagina\" data-testid=\"pagina-calculadora\">
+      <main className=\"card\" data-testid=\"card-principal\">
+        <header className=\"cabecalho\">
+          <p className=\"curso\" data-testid=\"curso\">
+            Curso: Desenvolvimento de Sistemas
+          </p>
+          <p className=\"unidade\" data-testid=\"unidade\">
+            Unidade: São José dos Campos
+          </p>
+        </header>
+
+        <h1 className=\"titulo\" data-testid=\"titulo\">
+          Calculadora de Média
+        </h1>
+        <p className=\"subtitulo\" data-testid=\"subtitulo\">
+          Informe as três notas (de 0 a 10) para calcular a média e ver a
+          situação do aluno.
+        </p>
+
+        <div id=\"form-notas\" className=\"form\" data-testid=\"form-notas\">
+          <div className=\"campo\">
+            <label htmlFor=\"nota1\">Nota 1</label>
+            <input
+              type=\"number\"
+              id=\"nota1\"
+              step=\"0.1\"
+              min=\"0\"
+              max=\"10\"
+              placeholder=\"Ex.: 7.5\"
+              data-testid=\"input-nota1\"
+            />
+          </div>
+
+          <div className=\"campo\">
+            <label htmlFor=\"nota2\">Nota 2</label>
+            <input
+              type=\"number\"
+              id=\"nota2\"
+              step=\"0.1\"
+              min=\"0\"
+              max=\"10\"
+              placeholder=\"Ex.: 8.0\"
+              data-testid=\"input-nota2\"
+            />
+          </div>
+
+          <div className=\"campo\">
+            <label htmlFor=\"nota3\">Nota 3 (trabalho / prova final)</label>
+            <input
+              type=\"number\"
+              id=\"nota3\"
+              step=\"0.1\"
+              min=\"0\"
+              max=\"10\"
+              placeholder=\"Ex.: 6.0\"
+              data-testid=\"input-nota3\"
+            />
+          </div>
+
+          <button
+            type=\"button\"
+            className=\"botao\"
+            onClick={() => window.calcularMedia && window.calcularMedia()}
+            data-testid=\"btn-calcular\"
+          >
+            Calcular Média
+          </button>
+        </div>
+
+        <p id=\"resultado\" className=\"resultado\" data-testid=\"resultado\"></p>
+
+        <footer className=\"rodape\" data-testid=\"rodape\">
+          <small>
+            Regras: ≥ 7 Aprovado · ≥ 5 e &lt; 7 Recuperação · &lt; 5 Reprovado
+          </small>
+        </footer>
+      </main>
+    </div>
+  );
+}
+
+"export default App;"
+"# PRD — Calculadora de Média
+
+## Problema original (enunciado do usuário)
+Construir uma página web com:
+- Campos de entrada para Nota 1, Nota 2 (e desafio extra: Nota 3 — trabalho/prova final)
+- Botão \"Calcular Média\"
+- Área (<p>/<div>) para exibir o resultado
+
+Regras:
+1. Ao clicar: capturar valores por `document.getElementById()`, converter com `parseFloat()`.
+2. Validações:
+   - Campo vazio → \"Por favor, preencha todas as notas.\"
+   - Valor não numérico → \"Digite apenas números válidos.\"
+   - Nota < 0 ou > 10 → \"As notas devem estar entre 0 e 10.\"
+3. Cálculo: média = soma das notas / quantidade.
+4. Exibir média com 1 casa decimal e a situação:
+   - ≥ 7: Aprovado
+   - ≥ 5 e < 7: Recuperação
+   - < 5: Reprovado
+
+Cabeçalho fixo: **Curso: Desenvolvimento de Sistemas — Unidade: São José dos Campos**.
+
+Requisitos técnicos:
+- `document.getElementById()`, `parseFloat()`, `if/else`, `.innerText`/`.innerHTML`.
+
+Desafio extra (escolhido pelo usuário):
+- Cores do resultado: verde (aprovado), laranja (recuperação), vermelho (reprovado)
+- Limpar campos após o cálculo
+- Adicionar terceira nota (trabalho/prova final)
+
+## Escolhas do usuário (ask_human)
+- Notas: 3 (incluindo trabalho/prova final)
+- Desafio extra: sim (cores + limpar campos)
+- Estilo: HTML/CSS/JS puro
+
+## Arquitetura
+- Frontend único (React CRA já provisionado no template), sem backend/MongoDB para este exercício.
+- Lógica escrita em JS vanilla dentro de `useEffect` usando `document.getElementById`, `parseFloat`, `if/else`, `.innerText`/`.innerHTML` — aderente aos requisitos técnicos pedagógicos.
+- CSS puro em `App.css`, sem Tailwind/Shadcn no componente.
+
+## Implementado (17/fev/2026)
+- Página única `/app/frontend/src/App.js` com:
+  - 3 inputs (Nota 1, Nota 2, Nota 3) com `data-testid`
+  - Botão \"Calcular Média\"
+  - `<p id=\"resultado\">` para saída via `innerHTML`
+  - Todas as validações (vazio, numérico via `isNaN`, intervalo 0–10)
+  - Cálculo com `toFixed(1)`
+  - Cores dinâmicas por classe CSS (`aprovado`/`recuperacao`/`reprovado`/`erro`)
+  - Limpeza dos campos após sucesso e foco no primeiro input
+  - Tecla Enter dispara o cálculo
+- Estilo em `/app/frontend/src/App.css` (card centralizado, responsivo)
+- Cabeçalho com curso e unidade
+
+## Testes executados (Playwright)
+- Vazio → mensagem correta ✅
+- Nota 11 → mensagem de intervalo ✅
+- 8/7/9 → Média 8.0 · Aprovado (verde) ✅
+- 6/6/6 → Média 6.0 · Recuperação ✅
+- 2/3/4 → Média 3.0 · Reprovado ✅
+- Campos limpos após cálculo ✅
+
+## Backlog
+- P2: Alternar entre modo 2 notas e 3 notas
+- P2: Histórico de cálculos (localStorage)
+- P2: Permitir pesos diferentes por nota"
